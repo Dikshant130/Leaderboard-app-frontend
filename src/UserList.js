@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Leaderboard from './Leaderboard';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -35,18 +36,21 @@ const UserList = () => {
   const [newUserName, setNewUserName] = useState('');
 
   const handleAddUser = async () => {
-  try {
-    const response = await axios.post('https://leaderboard-app-backend.onrender.com/add-user', { name: newUserName });
-    setNewUserName('');
-    setSelectedUser(null);
+    try {
+      const response = await axios.post('https://leaderboard-app-backend.onrender.com/add-user', { name: newUserName });
+      setNewUserName('');
+      setSelectedUser(null);
 
-    const newUser = response.data; 
-    setUsers((prevUsers) => [...prevUsers, newUser]);
+      const newUser = response.data;
+      setUsers((prevUsers) => [...prevUsers, newUser]);
 
-  } catch (error) {
-    console.error('Error adding user:', error);
-  }
-};
+      // Re-fetch users to update leaderboard
+      const fetchedUsers = await axios.get('https://leaderboard-app-backend.onrender.com/users');
+      setUsers(fetchedUsers.data.sort((a, b) => b.totalPoints - a.totalPoints));
+    } catch (error) {
+      console.error('Error adding user:', error);
+    }
+  };
 
   return (
     <div>
@@ -66,6 +70,7 @@ const UserList = () => {
       <h3>Add User</h3>
       <input type="text" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
       <button onClick={handleAddUser}>Add User</button>
+      <Leaderboard claimedPoints={claimedPoints} addUsers={users} />
     </div>
   );
 };

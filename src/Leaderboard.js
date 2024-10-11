@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Leaderboard = () => {
+const Leaderboard = ({ claimedPoints, addUsers }) => {
   const [users, setUsers] = useState([]);
-  const [claimedPoints, setClaimedPoints] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -16,7 +15,7 @@ const Leaderboard = () => {
     };
 
     fetchUsers();
-  }, [setClaimedPoints]);
+  }, [claimedPoints, addUsers]);
 
   return (
     <div>
