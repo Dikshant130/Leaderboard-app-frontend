@@ -35,16 +35,18 @@ const UserList = () => {
   const [newUserName, setNewUserName] = useState('');
 
   const handleAddUser = async () => {
-    try {
-      await axios.post('https://leaderboard-app-backend.onrender.com/add-user', { name: newUserName });
-      setNewUserName('');
-      // Refresh user list to display the new user
-      const response = await axios.get('https://leaderboard-app-backend.onrender.com/users');
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error adding user:', error);
-    }
-  };
+  try {
+    const response = await axios.post('https://leaderboard-app-backend.onrender.com/add-user', { name: newUserName });
+    setNewUserName('');
+    setSelectedUser(null);
+
+    const newUser = response.data; 
+    setUsers((prevUsers) => [...prevUsers, newUser]);
+
+  } catch (error) {
+    console.error('Error adding user:', error);
+  }
+};
 
   return (
     <div>
