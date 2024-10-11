@@ -28,9 +28,11 @@ const UserList = () => {
   const handleClaimPoints = async () => {
     try {
       const response = await axios.post('https://leaderboard-app-backend.onrender.com/claim-points', { userId: selectedUser.userId });
-    
+      
+      // Update claimed points in the state
       setClaimedPoints(response.data.points);
 
+      // Update the selected user's total points in the local state
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.userId === selectedUser.userId
@@ -52,6 +54,7 @@ const UserList = () => {
       const newUser = response.data;
       setUsers((prevUsers) => [...prevUsers, newUser]);
 
+      // Re-fetch users to update leaderboard
       const fetchedUsers = await axios.get('https://leaderboard-app-backend.onrender.com/users');
       setUsers(fetchedUsers.data.sort((a, b) => b.totalPoints - a.totalPoints));
     } catch (error) {
@@ -63,13 +66,16 @@ const UserList = () => {
     <div>
       <h2>User List</h2>
       <select value={selectedUser?.userId} onChange={(e) => handleUserSelect(users.find((user) => user.userId === e.target.value))}>
-        <option value="">Select User</option>
-        {users.map((user) => (
-          <option key={user.userId} value={user.userId}>
-            {user.name}
-          </option>
-        ))}
-      </select>
+  <option value="">Select User</option>
+  {users
+    .filter((user, index, self) => self.findIndex(u => u.name === user.name) === index) // Remove duplicates by name
+    .sort((a, b) => a.name.localeCompare(b.name))  // Sorting alphabetically by name
+    .map((user) => (
+      <option key={user.userId} value={user.userId}>
+        {user.name}
+      </option>
+    ))}
+</select>
       <button disabled={!selectedUser} onClick={handleClaimPoints}>
         Claim Points
       </button>
