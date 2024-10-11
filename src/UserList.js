@@ -6,6 +6,7 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [claimedPoints, setClaimedPoints] = useState(null);
+  const [newUserName, setNewUserName] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -27,13 +28,20 @@ const UserList = () => {
   const handleClaimPoints = async () => {
     try {
       const response = await axios.post('https://leaderboard-app-backend.onrender.com/claim-points', { userId: selectedUser.userId });
+    
       setClaimedPoints(response.data.points);
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.userId === selectedUser.userId
+            ? { ...user, totalPoints: user.totalPoints + response.data.points }
+            : user
+        )
+      );
     } catch (error) {
       console.error('Error claiming points:', error);
     }
   };
-
-  const [newUserName, setNewUserName] = useState('');
 
   const handleAddUser = async () => {
     try {
@@ -44,7 +52,6 @@ const UserList = () => {
       const newUser = response.data;
       setUsers((prevUsers) => [...prevUsers, newUser]);
 
-      // Re-fetch users to update leaderboard
       const fetchedUsers = await axios.get('https://leaderboard-app-backend.onrender.com/users');
       setUsers(fetchedUsers.data.sort((a, b) => b.totalPoints - a.totalPoints));
     } catch (error) {
@@ -70,6 +77,8 @@ const UserList = () => {
       <h3>Add User</h3>
       <input type="text" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
       <button onClick={handleAddUser}>Add User</button>
+      
+      {/* Pass updated users and claimedPoints to Leaderboard */}
       <Leaderboard claimedPoints={claimedPoints} addUsers={users} />
     </div>
   );
