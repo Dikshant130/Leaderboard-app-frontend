@@ -16,7 +16,7 @@ const Leaderboard = () => {
     };
 
     fetchUsers();
-  }, [claimedPoints]);
+  }, [setClaimedPoints]);
 
   return (
     <div>
